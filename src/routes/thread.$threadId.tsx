@@ -50,6 +50,25 @@ function ThreadView() {
     thread: Thread;
     messages: Message[];
   };
+  const summarize = useServerFn(summarizeThread);
+  const [summary, setSummary] = useState(thread.summary);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      summarize({
+        data: {
+          threadTitle: thread.title,
+          messages: messages.map((m) => ({
+            author: m.author,
+            source: m.source,
+            text: m.text,
+          })),
+        },
+      }),
+    onSuccess: (r: { summary?: string }) => {
+      if (r?.summary) setSummary(r.summary);
+    },
+  });
   const [summary, setSummary] = useState(thread.summary);
 
   const mutation = useMutation({
