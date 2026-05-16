@@ -6,7 +6,7 @@ import { ArrowLeft, Sparkles, Send } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { PlatformChip } from "@/components/PlatformChip";
 import { PriorityBadge } from "@/components/PriorityBadge";
-import { getThread, getThreadMessages } from "@/lib/mock-data";
+import { getThread, getThreadMessages, type Message, type Thread } from "@/lib/mock-data";
 import { summarizeThread } from "@/lib/summarize.functions";
 import { timeAgo } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/thread/$threadId")({
       ],
     };
   },
-  loader: ({ params }) => {
+  loader: ({ params }): { thread: Thread; messages: Message[] } => {
     const thread = getThread(params.threadId);
     if (!thread) throw notFound();
     return { thread, messages: getThreadMessages(params.threadId) };
