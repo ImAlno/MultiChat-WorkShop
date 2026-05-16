@@ -46,8 +46,10 @@ export const Route = createFileRoute("/thread/$threadId")({
 });
 
 function ThreadView() {
-  const { thread, messages } = Route.useLoaderData();
-  const summarize = useServerFn(summarizeThread);
+  const { thread, messages } = Route.useLoaderData() as {
+    thread: Thread;
+    messages: Message[];
+  };
   const [summary, setSummary] = useState(thread.summary);
 
   const mutation = useMutation({
