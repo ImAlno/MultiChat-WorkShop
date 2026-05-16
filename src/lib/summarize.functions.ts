@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateText } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway";
+import { createAiGatewayProvider } from "./ai-gateway";
 
 const InputSchema = z.object({
   threadTitle: z.string().min(1).max(200),
@@ -20,7 +20,7 @@ const InputSchema = z.object({
 export const summarizeThread = createServerFn({ method: "POST" })
   .inputValidator((input) => InputSchema.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env.LOVABLE_API_KEY;
+    const key = process.env.AI_API_KEY;
     if (!key) {
       return {
         summary: "AI summary is not configured yet.",
@@ -29,7 +29,7 @@ export const summarizeThread = createServerFn({ method: "POST" })
       };
     }
 
-    const gateway = createLovableAiGatewayProvider(key);
+    const gateway = createAiGatewayProvider(key);
     const model = gateway("google/gemini-3-flash-preview");
 
     const transcript = data.messages

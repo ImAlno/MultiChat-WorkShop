@@ -11,7 +11,7 @@ This repository is the **mobile-first web MVP**.
 ## What's in the MVP
 
 - **Unified inbox** of mock threads from Discord & Slack
-- **AI thread summaries** via the Lovable AI Gateway
+- **AI thread summaries** via OpenAI-compatible API
 - **Priority labels** — `urgent`, `requires_response`, `informational`
 - **Thread detail** view with grouped messages and platform indicators
 - **Suggested replies** (mocked)
@@ -30,7 +30,7 @@ This repository is the **mobile-first web MVP**.
 - **TanStack Start** (React 19, Vite 7, SSR-ready)
 - **TanStack Server Functions** as the backend boundary (replaces FastAPI in the original spec)
 - **Tailwind CSS v4** with a calm, Linear-inspired design system in `src/styles.css`
-- **AI SDK + Lovable AI Gateway** (`google/gemini-3-flash-preview`) for summaries
+- **AI SDK** with OpenAI-compatible models (`google/gemini-3-flash-preview`) for summaries
 - **Zod** for input validation
 
 ## Architecture
@@ -40,7 +40,7 @@ src/
 ├── components/          # UI building blocks (ThreadCard, PriorityBadge, …)
 ├── lib/
 │   ├── mock-data.ts     # Normalized message + thread schema, seed data
-│   ├── ai-gateway.ts    # Lovable AI Gateway provider
+│   ├── ai-gateway.ts    # OpenAI-compatible AI Gateway provider
 │   ├── summarize.functions.ts  # Server function: AI thread summary
 │   └── time.ts          # Relative-time helper
 ├── routes/              # File-based routes (index, thread.$threadId, search, focus)
@@ -70,23 +70,20 @@ In this stack those are typed RPCs:
 | ----------------- | ------------------------------------------------------- |
 | `GET /messages`   | `threads` export from `src/lib/mock-data.ts`            |
 | `GET /message/:id`| `getThread(id)` + `getThreadMessages(id)`               |
-| `POST /summarize` | `summarizeThread` server function (Lovable AI Gateway)  |
+| `POST /summarize` | `summarizeThread` server function (OpenAI-compatible API)  |
 
 Swapping to real ingestion later means replacing the mock module with calls to
 real connectors — UI and AI layer stay unchanged.
 
 ## Running locally
 
-This project runs in Lovable's sandbox automatically. Locally:
-
 ```bash
 bun install
 bun run dev
 ```
 
-The Lovable AI Gateway key (`LOVABLE_API_KEY`) is provisioned by Lovable Cloud
-and read server-side inside `summarizeThread`. No `.env` setup needed in
-Lovable; for a self-hosted deploy set `LOVABLE_API_KEY` in your runtime env.
+Set the `AI_API_KEY` environment variable with your OpenAI API key or compatible service key.
+For a self-hosted deploy set `AI_API_KEY` and optionally `AI_GATEWAY_BASE_URL` in your runtime env.
 
 ## Design principles
 
@@ -100,7 +97,7 @@ Lovable; for a self-hosted deploy set `LOVABLE_API_KEY` in your runtime env.
 ## Roadmap
 
 - Real Discord & Slack ingestion (OAuth + webhooks)
-- Lovable Cloud (Postgres) persistence + per-user threads
+- Cloud persistence + per-user threads (Postgres)
 - Embeddings-based semantic search
 - AI-suggested replies grounded in conversation history
 - Emotional tone labels
