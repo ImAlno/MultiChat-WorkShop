@@ -24,6 +24,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="messages" />
+        <Stack.Screen name="message/[id]" options={{ title: '' }} />
         <Stack.Screen name="add-app" />
         <Stack.Screen name="connect-app" />
       </Stack>

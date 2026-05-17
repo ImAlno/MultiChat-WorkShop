@@ -1,9 +1,13 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
+import { ConnectionStep } from '@/components/ConnectionStep';
+import { useConnectionGuide } from '@/hooks/useConnectionGuide';
 
 export default function ConnectAppScreen() {
   const { app } = useLocalSearchParams();
   const appName = typeof app === 'string' ? app : 'App';
+  
+  const guide = useConnectionGuide(appName);
 
   return (
     <View style={styles.container}>
@@ -16,14 +20,26 @@ export default function ConnectAppScreen() {
         }} 
       />
       
-      <View style={styles.content}>
-        <View style={styles.placeholderBox}>
-          <Text style={styles.placeholderText}>Guide coming soon</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.instructionsContainer}>
+          <Text style={styles.title}>{guide.title}</Text>
+          <Text style={styles.subtitle}>{guide.subtitle}</Text>
+          
+          {guide.steps.map((step) => (
+            <ConnectionStep
+              key={step.stepNumber}
+              stepNumber={step.stepNumber}
+              title={step.title}
+              description={step.description}
+              type={step.type}
+              buttonText={step.buttonText}
+              inputPlaceholder={step.inputPlaceholder}
+              onSubmitInput={step.onSubmitInput}
+              onPress={step.onPress}
+            />
+          ))}
         </View>
-        <Text style={styles.description}>
-          Instructions to connect your {appName} account will appear here.
-        </Text>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -39,32 +55,23 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     letterSpacing: 0.5,
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  scrollContent: {
+    flexGrow: 1,
     padding: 32,
   },
-  placeholderBox: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: '#f9f9f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#eee',
-    marginBottom: 32,
+  instructionsContainer: {
+    flex: 1,
   },
-  placeholderText: {
-    fontSize: 16,
-    color: '#999',
-    fontWeight: '400',
+  title: {
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 8,
   },
-  description: {
+  subtitle: {
     fontSize: 16,
     color: '#666',
-    textAlign: 'center',
+    marginBottom: 40,
     lineHeight: 24,
   },
 });

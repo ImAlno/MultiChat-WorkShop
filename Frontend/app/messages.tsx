@@ -1,30 +1,45 @@
 import { StyleSheet, View, Text, FlatList, Pressable } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { AppAvatar } from '@/components/AppAvatar';
 
 // Dummy data for messages
 const MESSAGES = [
   { id: '1', app: 'Discord', sender: 'Alice', text: 'Hey, are we still meeting later?', time: '10:42 AM' },
   { id: '2', app: 'Discord', sender: 'Bob', text: 'Just pushed the new update.', time: '09:15 AM' },
   { id: '3', app: 'Discord', sender: 'Charlie', text: 'Let me know what you think of the design.', time: 'Yesterday' },
+  { id: '4', app: 'Discord', sender: 'David', text: 'This is a very long message that takes up multiple lines. I want to tell you all about the new features we just released today. First of all, the design is super clean and intentional. Secondly, we fixed all the bugs from last week! Let me know if you want to hop on a call to discuss the remaining items for this sprint.', time: 'Monday' },
 ];
 
 export default function MessagesScreen() {
   const router = useRouter();
 
   const renderItem = ({ item }: { item: typeof MESSAGES[0] }) => (
-    <View style={styles.messageItem}>
-      <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{item.sender[0]}</Text>
-      </View>
+    <Pressable 
+      style={({ pressed }) => [
+        styles.messageItem,
+        pressed && { backgroundColor: '#f9f9f9' }
+      ]}
+      onPress={() => router.push({
+        pathname: '/message/[id]',
+        params: { 
+          id: item.id,
+          sender: item.sender,
+          time: item.time,
+          text: item.text,
+          appName: item.app,
+        }
+      })}
+    >
+      <AppAvatar appName={item.app} size={24} />
       <View style={styles.messageContent}>
         <View style={styles.messageHeader}>
           <Text style={styles.sender}>{item.sender}</Text>
           <Text style={styles.time}>{item.time}</Text>
         </View>
-        <Text style={styles.text} numberOfLines={1}>{item.text}</Text>
+        <Text style={styles.text} numberOfLines={2}>{item.text}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 
   return (
@@ -92,20 +107,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 20,
     alignItems: 'center',
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#666',
   },
   messageContent: {
     flex: 1,
