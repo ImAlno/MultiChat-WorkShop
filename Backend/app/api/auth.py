@@ -14,7 +14,7 @@ async def discord_callback(code: str = Query(...)):
     guilds_data = await DiscordService.fetch_user_guilds(access_token)
     
     return {
-        "access_token": access_token,
+       # "access_token": access_token,
         "user": user_data,
         "guilds": guilds_data
     }
