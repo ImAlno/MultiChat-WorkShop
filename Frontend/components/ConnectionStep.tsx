@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ConnectionStepProps {
   stepNumber: string | number;
@@ -10,6 +11,7 @@ interface ConnectionStepProps {
   onPress?: () => void;
   inputPlaceholder?: string;
   onSubmitInput?: (value: string) => Promise<void>;
+  isCompleted?: boolean;
 }
 
 export function ConnectionStep({
@@ -21,6 +23,7 @@ export function ConnectionStep({
   onPress,
   inputPlaceholder,
   onSubmitInput,
+  isCompleted = false,
 }: ConnectionStepProps) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,21 +40,32 @@ export function ConnectionStep({
   };
 
   return (
-    <View style={styles.stepContainer}>
+    <View style={[styles.stepContainer, isCompleted && styles.stepContainerCompleted]}>
       <View style={styles.stepHeader}>
-        <View style={styles.stepBadge}>
-          <Text style={styles.stepBadgeText}>{stepNumber}</Text>
+        <View style={[styles.stepBadge, isCompleted && styles.stepBadgeCompleted]}>
+          {isCompleted ? (
+            <Ionicons name="checkmark" size={14} color="#fff" />
+          ) : (
+            <Text style={styles.stepBadgeText}>{stepNumber}</Text>
+          )}
         </View>
-        <Text style={styles.stepTitle}>{title}</Text>
+        <Text style={[styles.stepTitle, isCompleted && styles.stepTitleCompleted]}>{title}</Text>
       </View>
       <Text style={styles.stepDescription}>{description}</Text>
 
       {type === 'link' && onPress && (
         <Pressable 
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} 
-          onPress={onPress}
+          style={({ pressed }) => [
+            styles.button,
+            isCompleted && styles.buttonCompleted,
+            pressed && !isCompleted && styles.buttonPressed
+          ]} 
+          onPress={isCompleted ? undefined : onPress}
+          disabled={isCompleted}
         >
-          <Text style={styles.buttonText}>{buttonText}</Text>
+          <Text style={[styles.buttonText, isCompleted && styles.buttonTextCompleted]}>
+            {isCompleted ? 'Completed ✓' : buttonText}
+          </Text>
         </Pressable>
       )}
 
@@ -171,5 +185,24 @@ const styles = StyleSheet.create({
   },
   inputButtonText: {
     color: '#fff',
+  },
+  stepContainerCompleted: {
+    borderColor: '#e8f7ed',
+    backgroundColor: '#fafdfb',
+  },
+  stepBadgeCompleted: {
+    backgroundColor: '#2ecc71',
+  },
+  stepTitleCompleted: {
+    color: '#2ecc71',
+    fontWeight: '600',
+  },
+  buttonCompleted: {
+    backgroundColor: '#e8f7ed',
+    borderColor: '#d1f2db',
+  },
+  buttonTextCompleted: {
+    color: '#2ecc71',
+    fontWeight: '600',
   },
 });
