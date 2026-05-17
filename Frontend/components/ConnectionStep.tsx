@@ -6,12 +6,13 @@ interface ConnectionStepProps {
   stepNumber: string | number;
   title: string;
   description: string;
-  type: 'link' | 'input' | 'instruction';
+  type: 'link' | 'input' | 'instruction' | 'custom';
   buttonText?: string;
   onPress?: () => void;
   inputPlaceholder?: string;
   onSubmitInput?: (value: string) => Promise<void>;
   isCompleted?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConnectionStep({
@@ -24,6 +25,7 @@ export function ConnectionStep({
   inputPlaceholder,
   onSubmitInput,
   isCompleted = false,
+  children,
 }: ConnectionStepProps) {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -99,6 +101,8 @@ export function ConnectionStep({
           </Pressable>
         </View>
       )}
+
+      {children}
     </View>
   );
 }

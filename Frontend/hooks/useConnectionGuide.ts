@@ -2,7 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Alert } from 'react-native';
 import * as Linking from 'expo-linking';
 
-export type StepType = 'link' | 'input' | 'instruction';
+export type StepType = 'link' | 'input' | 'instruction' | 'custom';
 
 export interface ConnectionStepData {
   stepNumber: number;
@@ -73,7 +73,7 @@ export function useConnectionGuide(appName: string, options?: ConnectionGuideOpt
   if (name === 'discord') {
     return {
       title: 'Connect Discord',
-      subtitle: 'Complete these two steps to sync your messages.',
+      subtitle: 'Complete these steps to sync your server messages.',
       steps: [
         {
           stepNumber: 1,
@@ -86,10 +86,22 @@ export function useConnectionGuide(appName: string, options?: ConnectionGuideOpt
         {
           stepNumber: 2,
           title: 'Add the Bot',
-          description: 'Select which server you want to gather messages from.',
+          description: 'Invite the bot to your Discord server so it can fetch messages.',
           type: 'link',
-          buttonText: 'Choose what server',
+          buttonText: 'Add Bot to Server',
           onPress: () => handleOpenBrowser(DISCORD_BOT_URL),
+        },
+        {
+          stepNumber: 3,
+          title: 'Choose a Guild',
+          description: 'Select which server you want to gather messages from.',
+          type: 'custom',
+        },
+        {
+          stepNumber: 4,
+          title: 'Choose a Channel',
+          description: 'Select the text channel where messages should be synced.',
+          type: 'custom',
         },
       ],
     };
