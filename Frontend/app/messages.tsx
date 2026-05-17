@@ -5,19 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { AppAvatar } from '@/components/AppAvatar';
 import Constants from 'expo-constants';
 
-// Dummy/fallback data for messages if no connection has been set up yet
-const FALLBACK_MESSAGES = [
-  { id: '1', app: 'Discord', sender: 'Alice', text: 'Hey, are we still meeting later?', time: '10:42 AM' },
-  { id: '2', app: 'Discord', sender: 'Bob', text: 'Just pushed the new update.', time: '09:15 AM' },
-  { id: '3', app: 'Discord', sender: 'Charlie', text: 'Let me know what you think of the design.', time: 'Yesterday' },
-  { id: '4', app: 'Discord', sender: 'David', text: 'This is a very long message that takes up multiple lines. I want to tell you all about the new features we just released today. First of all, the design is super clean and intentional. Secondly, we fixed all the bugs from last week! Let me know if you want to hop on a call to discuss the remaining items for this sprint.', time: 'Monday' },
-];
-
 export default function MessagesScreen() {
   const router = useRouter();
   const { channel_id } = useLocalSearchParams();
 
-  const [messagesList, setMessagesList] = useState<any[]>(FALLBACK_MESSAGES);
+  const [messagesList, setMessagesList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,8 +87,7 @@ export default function MessagesScreen() {
     if (channel_id) {
       fetchChannelMessages(channel_id as string);
     } else {
-      // If no channel is connected yet, display illustrative fallback list
-      setMessagesList(FALLBACK_MESSAGES);
+      setMessagesList([]);
     }
   }, [channel_id]);
 
@@ -177,22 +168,24 @@ export default function MessagesScreen() {
             </Pressable>
           )}
         </View>
-      ) : !channel_id && messagesList === FALLBACK_MESSAGES ? (
-        <View style={styles.container}>
-          {/* Informative connection banner */}
-          <View style={styles.infoBanner}>
-            <Ionicons name="information-circle" size={20} color="#5865F2" style={{ marginRight: 8 }} />
-            <Text style={styles.infoBannerText}>
-              Viewing demo list. Tap '+' to connect a real Discord channel!
-            </Text>
+      ) : !channel_id ? (
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconCircle}>
+            <Ionicons name="chatbubbles-outline" size={48} color="#5865F2" />
           </View>
-          <FlatList
-            data={messagesList}
-            keyExtractor={item => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
+          <Text style={styles.emptyTitle}>No synced messages yet</Text>
+          <Text style={styles.emptySubtitle}>
+            Connect your Discord server to start reading and syncing messages in real-time.
+          </Text>
+          <Pressable 
+            style={({ pressed }) => [
+              styles.connectButton,
+              pressed && styles.connectButtonPressed
+            ]} 
+            onPress={() => router.push('/add-app')}
+          >
+            <Text style={styles.connectButtonText}>Connect Discord Channel</Text>
+          </Pressable>
         </View>
       ) : (
         <FlatList
@@ -299,21 +292,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  infoBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f0f3ff',
-    padding: 12,
-    marginHorizontal: 20,
-    marginTop: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#dbe2ff',
-  },
-  infoBannerText: {
+  emptyContainer: {
     flex: 1,
-    fontSize: 13,
-    color: '#5865F2',
-    fontWeight: '500',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    backgroundColor: '#fff',
+  },
+  emptyIconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#f4f5fe',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+    paddingHorizontal: 16,
+  },
+  connectButton: {
+    backgroundColor: '#5865F2',
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    shadowColor: '#5865F2',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  connectButtonPressed: {
+    backgroundColor: '#4752C4',
+    opacity: 0.9,
+  },
+  connectButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
