@@ -22,5 +22,21 @@ services:
     depends_on:
       - db
 
+  backend:
+    build: .
+    container_name: workshop-backend
+    ports:
+      - "3000:3000"
+    environment:
+      # We override DATABASE_URL to connect to 'db:5432' inside the internal Docker network,
+      # allowing the host to run locally or inside Docker seamlessly.
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+    depends_on:
+      - db
+
 volumes:
   postgres-data:

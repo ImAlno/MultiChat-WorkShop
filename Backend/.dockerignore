@@ -1,0 +1,19 @@
+# Ignore local python virtual environments and dependencies
+venv/
+.venv/
+env/
+
+# Ignore compiled python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local database files and environment secrets
+*.db
+.env
+
+# Ignore version control systems and documentation
+.git/
+.gitignore
+README.md
