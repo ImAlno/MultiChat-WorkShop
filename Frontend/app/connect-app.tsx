@@ -453,7 +453,10 @@ export default function ConnectAppScreen() {
                   styles.successButton,
                   pressed && styles.successButtonPressed
                 ]}
-                onPress={() => router.replace('/messages')}
+                onPress={() => router.replace({
+                  pathname: '/messages',
+                  params: { channel_id: selectedChannelId }
+                })}
               >
                 <Text style={styles.successButtonText}>Go to Messages</Text>
               </Pressable>
