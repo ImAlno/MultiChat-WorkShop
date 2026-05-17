@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16.13
+    container_name: workshop-db
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  pgweb:
+    image: sosedoff/pgweb:0.16.2
+    container_name: workshop-pgweb
+    ports:
+      - "8081:8081"
+    environment:
+      # We use 'db:5432' as host/port because containers connect via the internal Docker network.
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable
+    depends_on:
+      - db
+
+volumes:
+  postgres-data:

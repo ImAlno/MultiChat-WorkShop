@@ -7,7 +7,7 @@ from app.api.channels import router as channels_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Automatically initialize SQLite database tables on startup
+    # Automatically initialize database tables on startup
     await init_db()
     yield
 
