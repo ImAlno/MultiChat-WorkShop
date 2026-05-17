@@ -1,27 +1,11 @@
-import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useRouter } from 'expo-router';
-import { useEventListener } from 'expo';
+import { VideoView } from 'expo-video';
+import { useAutoVideoPlayer } from '@/hooks/useAutoVideoPlayer';
 
-const videoSource = require('../assets/video/ChatBundleVid.mp4');
+const videoSource = require('../assets/videos/ChatBundleVid.mp4');
 
 export default function LoginScreen() {
-  const router = useRouter();
-
-  const player = useVideoPlayer(videoSource);
-
-  // Auto-navigate when video finishes
-  useEventListener(player, 'playToEnd', () => {
-    router.replace('/messages');
-  });
-
-  useEffect(() => {
-    if (player) {
-      player.loop = false;
-      player.play();
-    }
-  }, [player]);
+  const player = useAutoVideoPlayer(videoSource, '/messages');
 
   return (
     <View style={styles.container}>

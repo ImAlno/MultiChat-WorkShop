@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
@@ -23,6 +25,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="messages" />
+        <Stack.Screen name="message/[id]" options={{ title: '' }} />
         <Stack.Screen name="add-app" />
         <Stack.Screen name="connect-app" />
       </Stack>
