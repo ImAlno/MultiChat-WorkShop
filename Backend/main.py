@@ -21,10 +21,8 @@ app = FastAPI(title="Discord OAuth Minimal Backend")
 async def discord_callback(code: str = Query(...)):
     """
     Step A: Receive the code from Discord redirect.
+    Exchanges code for token, fetches user profile and user's guilds.
     """
-    
-    # Step B: Exchange code for access token
-    # We use application/x-www-form-urlencoded as required by Discord
     token_url = "https://discord.com/api/oauth2/token"
     data = {
         "client_id": DISCORD_CLIENT_ID,
@@ -33,9 +31,7 @@ async def discord_callback(code: str = Query(...)):
         "code": code,
         "redirect_uri": DISCORD_REDIRECT_URI,
     }
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     async with httpx.AsyncClient() as client:
         try:
@@ -49,10 +45,9 @@ async def discord_callback(code: str = Query(...)):
                 detail=f"Failed to exchange code for token: {e.response.text}"
             )
 
-        # Common headers for authenticated requests
         auth_headers = {"Authorization": f"Bearer {access_token}"}
 
-        # Step C: Fetch authenticated user data using the access token
+        # Fetch authenticated user data
         user_url = "https://discord.com/api/users/@me"
         try:
             user_response = await client.get(user_url, headers=auth_headers)
@@ -64,7 +59,7 @@ async def discord_callback(code: str = Query(...)):
                 detail=f"Failed to fetch user profile: {e.response.text}"
             )
 
-        # Step D: Fetch user's servers (guilds)
+        # Fetch user's servers (guilds)
         guilds_url = "https://discord.com/api/users/@me/guilds"
         try:
             guilds_response = await client.get(guilds_url, headers=auth_headers)
@@ -76,14 +71,24 @@ async def discord_callback(code: str = Query(...)):
                 detail=f"Failed to fetch user guilds: {e.response.text}"
             )
 
-        # Multichat server guild ID is 1505129227865817109
-        guild_id = "1505129227865817109"
+        return {
+            "access_token": access_token, # Returning this so the frontend can store it if needed
+            "user": user_data,
+            "guilds": guilds_data
+        }
+
+@app.get("/guilds/{guild_id}/channels")
+async def get_guild_channels(guild_id: str):
+    """
+    Step B: Fetch text channels for a specific guild using the Bot Token.
+    """
+    if not DISCORD_BOT_TOKEN:
+        raise HTTPException(status_code=500, detail="Bot token not configured")
         
-        # Step E: Fetch channels of the specific guild using the BOT TOKEN
-        # Note: The bot MUST be invited to the server for this to work.
-        channels_url = f"https://discord.com/api/v10/guilds/{guild_id}/channels"
-        bot_headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
-        
+    channels_url = f"https://discord.com/api/v10/guilds/{guild_id}/channels"
+    bot_headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
+    
+    async with httpx.AsyncClient() as client:
         try:
             channels_response = await client.get(channels_url, headers=bot_headers)
             channels_response.raise_for_status()
@@ -91,31 +96,35 @@ async def discord_callback(code: str = Query(...)):
             
             # Filter for text channels only (type 0)
             text_channels = [c for c in all_channels if c.get("type") == 0]
+            return {"channels": text_channels}
         except httpx.HTTPStatusError as e:
-            # This often happens if the bot is not in the server or token is invalid
-            print(f"Warning: Failed to fetch channels: {e.response.text}")
-            text_channels = []
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=f"Failed to fetch channels: {e.response.text}"
+            )
 
-        # Testing will focus on this test channel form the selected guild
-        test_channel_id = "1505129301207552130"
+@app.get("/channels/{channel_id}/messages")
+async def get_channel_messages(channel_id: str, limit: int = 100):
+    """
+    Step C: Fetch messages from a specific channel using the Bot Token.
+    """
+    if not DISCORD_BOT_TOKEN:
+        raise HTTPException(status_code=500, detail="Bot token not configured")
         
-        # Step F: Fetch messages from the test channel using the BOT TOKEN
-        messages_url = f"https://discord.com/api/v10/channels/{test_channel_id}/messages?limit=50"
+    messages_url = f"https://discord.com/api/v10/channels/{channel_id}/messages?limit={limit}"
+    bot_headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
+    
+    async with httpx.AsyncClient() as client:
         try:
             messages_response = await client.get(messages_url, headers=bot_headers)
             messages_response.raise_for_status()
             messages_data = messages_response.json()
+            return {"messages": messages_data}
         except httpx.HTTPStatusError as e:
-            print(f"Warning: Failed to fetch messages: {e.response.text}")
-            messages_data = []
-
-        # Step G: Return the combined data
-        return {
-            "user": user_data,
-        #    "guilds": guilds_data,
-            "channels": text_channels,
-            "messages": messages_data
-        }
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=f"Failed to fetch messages: {e.response.text}"
+            )
 
 if __name__ == "__main__":
     import uvicorn
