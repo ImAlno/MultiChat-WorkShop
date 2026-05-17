@@ -1,0 +1,140 @@
+import { StyleSheet, View, Text, FlatList, Pressable } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+// Dummy data for messages
+const MESSAGES = [
+  { id: '1', app: 'Discord', sender: 'Alice', text: 'Hey, are we still meeting later?', time: '10:42 AM' },
+  { id: '2', app: 'Discord', sender: 'Bob', text: 'Just pushed the new update.', time: '09:15 AM' },
+  { id: '3', app: 'Discord', sender: 'Charlie', text: 'Let me know what you think of the design.', time: 'Yesterday' },
+];
+
+export default function MessagesScreen() {
+  const router = useRouter();
+
+  const renderItem = ({ item }: { item: typeof MESSAGES[0] }) => (
+    <View style={styles.messageItem}>
+      <View style={styles.avatar}>
+        <Text style={styles.avatarText}>{item.sender[0]}</Text>
+      </View>
+      <View style={styles.messageContent}>
+        <View style={styles.messageHeader}>
+          <Text style={styles.sender}>{item.sender}</Text>
+          <Text style={styles.time}>{item.time}</Text>
+        </View>
+        <Text style={styles.text} numberOfLines={1}>{item.text}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          title: 'Messages',
+          headerTitleStyle: styles.headerTitle,
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: '#fff' },
+          headerRight: () => (
+            <Pressable
+              onPress={() => router.push('/add-app')}
+              style={({ pressed }) => [
+                styles.headerButton,
+                pressed && { opacity: 0.5 }
+              ]}
+            >
+              <View style={styles.iconCircle}>
+                <Ionicons name="add" size={24} color="#1a1a1a" />
+              </View>
+            </Pressable>
+          ),
+        }}
+      />
+
+      <FlatList
+        data={MESSAGES}
+        keyExtractor={item => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '400',
+    color: '#1a1a1a',
+    letterSpacing: 0.5,
+  },
+  headerButton: {
+    marginRight: 16,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listContent: {
+    paddingVertical: 12,
+  },
+  messageItem: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#666',
+  },
+  messageContent: {
+    flex: 1,
+  },
+  messageHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  sender: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1a1a1a',
+  },
+  time: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '400',
+  },
+  text: {
+    fontSize: 15,
+    color: '#666',
+    fontWeight: '400',
+    lineHeight: 20,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#f5f5f5',
+    marginLeft: 84,
+  },
+});
